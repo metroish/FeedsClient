@@ -13,10 +13,10 @@ feed:
   - name: kaif.io
     url: https://kaif.io/hot.rss
     handleTime: 2021-06-18 14:15:16
-    checksum: xxx
+    checksum: 0
     result: OK
   - name: ithome
     url: https://www.ithome.com.tw/rss
     handleTime: 2021-06-18 14:15:16
-    checksum: xxx
+    checksum: 0
     result: OK

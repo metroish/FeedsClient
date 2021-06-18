@@ -1,12 +1,23 @@
 package com.midcielab.model;
 
+import java.util.List;
+
 public class Feed {
     private String name;
     private String url;
     private String handleTime;
-    private String checksum;
+    private int checksum;
     private String result;
-    private String content;  
+    private String content;
+    private List<Item> item;
+    
+    public List<Item> getItem() {
+        return item;
+    }
+
+    public void setItem(List<Item> item) {
+        this.item = item;
+    }
 
     public String getContent() {
         return content;
@@ -40,11 +51,11 @@ public class Feed {
         this.handleTime = handleTime;
     }
 
-    public String getChecksum() {
+    public int getChecksum() {
         return checksum;
     }
 
-    public void setChecksum(String checksum) {
+    public void setChecksum(int checksum) {
         this.checksum = checksum;
     }
 
