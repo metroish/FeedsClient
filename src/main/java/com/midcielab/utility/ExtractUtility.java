@@ -17,7 +17,7 @@ public class ExtractUtility {
     private XMLInputFactory factory;
     private XMLEventReader eventReader;
     private XMLEvent xmlEvent;
-    private List<Item> list = new ArrayList<Item>();
+    private List<Item> itemLists = new ArrayList<Item>();
     private Item item;
 
     private ExtractUtility() {
@@ -30,7 +30,6 @@ public class ExtractUtility {
 
     public List<Item> extract(String input) {
         try {
-
             this.eventReader = factory
                     .createXMLEventReader(new BufferedInputStream(new ByteArrayInputStream(input.getBytes("UTF-8"))));
             while (eventReader.hasNext()) {
@@ -60,7 +59,7 @@ public class ExtractUtility {
                 if (xmlEvent.isEndElement()) {
                     EndElement endElement = xmlEvent.asEndElement();
                     if ("item".equalsIgnoreCase(endElement.getName().getLocalPart())) {
-                        list.add(item);
+                        itemLists.add(item);
                         item = null;
                     }
                 }
@@ -69,7 +68,7 @@ public class ExtractUtility {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return list;
+        return itemLists;
     }
 
 }

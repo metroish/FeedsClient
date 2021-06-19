@@ -1,6 +1,14 @@
 # config.yml
 # app configuration
 
+action: smtp, line
+
+# action
+line:
+  url: https://notify-api.line.me/api/notify
+  token: xxxxxx
+
+# action 
 smtp:
   server: smtp-server
   port: 9527

@@ -1,14 +1,15 @@
 package com.midcielab;
 
-import static org.junit.Assert.assertTrue;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 import org.junit.Test;
 
 public class FeedsClientTest {
-    /**
-     * Rigorous Test :-)
-     */
     @Test
     public void shouldAnswerWithTrue() {
-        assertTrue(true);        
+        LocalDateTime ldt = LocalDateTime.now();
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        System.out.println(ldt.format(dtf));        
     }
 }
