@@ -13,16 +13,17 @@ import org.junit.Test;
 public class ExtractUtilityTest {
     @Test
     public void testExtract() {
-        Optional<HttpResponse<String>> resp = HttpUtility.getInstance().sendRequest("https://kaif.io/hot.rss", "GET", "");
-        if(resp.isPresent()) {
+        Optional<HttpResponse<String>> resp = HttpUtility.getInstance()
+                .getUrlContent(ConfigUtility.getInsance().getConfig().getFeed().iterator().next().getUrl());
+        if (resp.isPresent()) {
             List<Item> itemLists = ExtractUtility.getInstance().extract(resp.get().body().toString());
             System.out.println(itemLists);
-            itemLists.forEach( obj -> {
+            itemLists.forEach(obj -> {
                 assertNotNull(obj.getTitle());
                 assertNotNull(obj.getDescription());
                 assertNotNull(obj.getPubDate());
-                assertNotNull(obj.getLink());                
-            });            
+                assertNotNull(obj.getLink());
+            });
         }
-    }   
+    }
 }

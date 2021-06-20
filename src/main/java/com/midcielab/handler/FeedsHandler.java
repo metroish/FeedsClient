@@ -1,7 +1,9 @@
 package com.midcielab.handler;
 
 import java.net.http.HttpResponse;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import com.midcielab.model.Config;
 import com.midcielab.model.Feed;
@@ -9,25 +11,40 @@ import com.midcielab.model.Item;
 import com.midcielab.utility.ConfigUtility;
 import com.midcielab.utility.ExtractUtility;
 import com.midcielab.utility.HttpUtility;
+import com.midcielab.utility.SmtpUtility;
 import com.midcielab.utility.TimeUtility;
 
 public class FeedsHandler {
+
+    private static FeedsHandler instance = new FeedsHandler();
     private Config config;
     private HttpUtility httpUtility;
+    private StringBuilder stringBuilder;
+    private Boolean actionResult;
+    private Map<String, List<Item>> feedItems;
 
-    public FeedsHandler() {
+    private FeedsHandler() {
         this.config = ConfigUtility.getInsance().getConfig();
         this.httpUtility = HttpUtility.getInstance();
+        this.stringBuilder = new StringBuilder();
+        this.actionResult = false;
+        this.feedItems = new HashMap<>();
+    }
+
+    public static FeedsHandler getInstance() {
+        return instance;
     }
 
     public void process() {
         retreiveFeedItems();
-
+        feedItemsToMsg();
+        performAction();
+        saveState();
     }
 
     private void retreiveFeedItems() {
         for (Feed feed : this.config.getFeed()) {
-            Optional<HttpResponse<String>> resp = this.httpUtility.sendRequest(feed.getUrl(), "GET", "");
+            Optional<HttpResponse<String>> resp = this.httpUtility.getUrlContent(feed.getUrl());
             if (resp.isEmpty()) {
                 feed.setResult("Connection fail, check server status.");
                 continue;
@@ -35,31 +52,59 @@ public class FeedsHandler {
                 feed.setResult("Retreive feed fail, RC = " + resp.get().statusCode());
                 continue;
             } else if (resp.get().body().length() == feed.getChecksum()) {
-                feed.setHandleTime(TimeUtility.getInstance().getNow().toString());
-                feed.setResult("OK");
                 continue;
             } else {
                 feed.setChecksum(resp.get().body().length());
                 List<Item> tempList = ExtractUtility.getInstance().extract(resp.get().body().toString());
                 tempList.removeIf(
-                        obj -> (TimeUtility.getInstance().compareTime(obj.getPubDate(), feed.getHandleTime())));            
-                feed.setItem(tempList);
+                        obj -> (TimeUtility.getInstance().compareTime(obj.getPubDate(), feed.getHandleTime())));
+                feedItems.put(feed.getName(), tempList);
             }
         }
     }
 
-    private void feedAction() {
-        String[] actions = this.config.getAction().split(",");
-        for (String action : actions) {
-            switch (action.toLowerCase().trim()) {
-                case "smtp":
-                    
-                break;
-                case "line":
+    private void feedItemsToMsg() {
+        feedItems.forEach((name, listItems) -> {
+            this.stringBuilder.append("[ " + name + " ] \n");
+            listItems.forEach(item -> {
+                this.stringBuilder.append(item.getTitle() + "\n" + item.getLink() + "\n");
+            });
+        });
+    }
 
+    private void performAction() {
+        String action = this.config.getAction();
+        switch (action.trim()) {
+            case "smtp":
+                this.actionResult = SmtpUtility.getInstance().sendMail(this.config.getSmtp(),
+                        this.stringBuilder.toString());
                 break;
-            }
+            case "line":
+                Optional<HttpResponse<String>> resp = HttpUtility.getInstance().sendLineAPI(
+                        this.config.getLine().getUrl(), this.stringBuilder.toString(),
+                        this.config.getLine().getToken());
+                resp.ifPresentOrElse(respObj -> {
+                    if (respObj.statusCode() == 200) {
+                        this.actionResult = true;
+                    } else {
+                        this.actionResult = false;
+                    }
+                }, () -> {
+                    this.actionResult = false;
+                });
+                break;
         }
     }
 
+    private void saveState() {
+        if (this.actionResult) {
+            this.config.getFeed().forEach(feed -> {
+                if (feedItems.containsKey(feed.getName())) {
+                    feed.setHandleTime(TimeUtility.getInstance().getNow());
+                    feed.setResult("OK");
+                }
+            });
+        }
+        ConfigUtility.getInsance().saveConfig(this.config);
+    }
 }

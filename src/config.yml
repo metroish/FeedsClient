@@ -1,7 +1,8 @@
 # config.yml
 # app configuration
 
-action: smtp, line
+# choose one action below
+action: smtp
 
 # action
 line:

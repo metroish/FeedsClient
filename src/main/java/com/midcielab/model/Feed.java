@@ -1,22 +1,11 @@
 package com.midcielab.model;
 
-import java.util.List;
-
 public class Feed {
     private String name;
     private String url;
     private String handleTime;
     private int checksum;
     private String result;
-    private List<Item> item;
-
-    public List<Item> getItem() {
-        return item;
-    }
-
-    public void setItem(List<Item> item) {
-        this.item = item;
-    }
 
     public String getName() {
         return name;
@@ -60,8 +49,10 @@ public class Feed {
 
     @Override
     public String toString() {
-        return "Feed [checksum=" + checksum + ", handleTime=" + handleTime + ", item=" + item + ", name=" + name
-                + ", result=" + result + ", url=" + url + "]";
+        return "Feed [checksum=" + checksum + ", handleTime=" + handleTime + ", name=" + name + ", result=" + result
+                + ", url=" + url + "]";
     }
+
+  
 
 }
