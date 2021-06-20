@@ -4,6 +4,8 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.events.EndElement;
@@ -28,7 +30,7 @@ public class ExtractUtility {
         return instance;
     }
 
-    public List<Item> extract(String input) {
+    public Optional<List<Item>> extract(String input) {
         try {
             this.eventReader = factory
                     .createXMLEventReader(new BufferedInputStream(new ByteArrayInputStream(input.getBytes("UTF-8"))));
@@ -68,7 +70,6 @@ public class ExtractUtility {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return itemLists;
+        return Optional.ofNullable(itemLists);
     }
-
 }

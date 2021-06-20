@@ -1,12 +1,10 @@
 package com.midcielab;
 
+import com.midcielab.handler.FeedsHandler;
+
 public class FeedsClient {
 
-    public FeedsClient() {
-
-    }
-
     public static void main(String[] args) {
-        new FeedsClient();
+        FeedsHandler.getInstance().process();
     }
 }

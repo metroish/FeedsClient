@@ -15,8 +15,8 @@ public class ExtractUtilityTest {
     public void testExtract() {
         Optional<HttpResponse<String>> resp = HttpUtility.getInstance()
                 .getUrlContent(ConfigUtility.getInsance().getConfig().getFeed().iterator().next().getUrl());
-        if (resp.isPresent()) {
-            List<Item> itemLists = ExtractUtility.getInstance().extract(resp.get().body().toString());
+        if (resp.isPresent() && ExtractUtility.getInstance().extract(resp.get().body().toString()).isPresent()) {
+            List<Item> itemLists = ExtractUtility.getInstance().extract(resp.get().body().toString()).get();
             System.out.println(itemLists);
             itemLists.forEach(obj -> {
                 assertNotNull(obj.getTitle());

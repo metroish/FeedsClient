@@ -20,7 +20,7 @@ public class FeedsHandler {
     private Config config;
     private HttpUtility httpUtility;
     private StringBuilder stringBuilder;
-    private Boolean actionResult;
+    private boolean actionResult;
     private Map<String, List<Item>> feedItems;
 
     private FeedsHandler() {
@@ -35,14 +35,19 @@ public class FeedsHandler {
         return instance;
     }
 
-    public void process() {
-        retreiveFeedItems();
-        feedItemsToMsg();
-        performAction();
-        saveState();
+    public boolean process() {
+        if (retreiveFeedItems()) {
+            feedItemsToMsg();
+            performAction();
+            saveState();
+        } else {
+            return true;
+        }
+        return this.actionResult;
     }
 
-    private void retreiveFeedItems() {
+    private boolean retreiveFeedItems() {
+        boolean hasNewItem = false;
         for (Feed feed : this.config.getFeed()) {
             Optional<HttpResponse<String>> resp = this.httpUtility.getUrlContent(feed.getUrl());
             if (resp.isEmpty()) {
@@ -52,22 +57,30 @@ public class FeedsHandler {
                 feed.setResult("Retreive feed fail, RC = " + resp.get().statusCode());
                 continue;
             } else if (resp.get().body().length() == feed.getChecksum()) {
+                feed.setResult("OK, keep latest.");
                 continue;
             } else {
                 feed.setChecksum(resp.get().body().length());
-                List<Item> tempList = ExtractUtility.getInstance().extract(resp.get().body().toString());
-                tempList.removeIf(
-                        obj -> (TimeUtility.getInstance().compareTime(obj.getPubDate(), feed.getHandleTime())));
-                feedItems.put(feed.getName(), tempList);
+                Optional<List<Item>> opl = ExtractUtility.getInstance().extract(resp.get().body().toString());
+                if(opl.isPresent()) {
+                    List<Item> tempList = opl.get();
+                    tempList.removeIf(
+                            obj -> (TimeUtility.getInstance().compareTime(obj.getPubDate(), feed.getHandleTime())));
+                    feedItems.put(feed.getName(), tempList);
+                    hasNewItem = true;
+                } else {
+                    feed.setResult("Parsing feed fail, check feed format");
+                }                                
             }
         }
+        return hasNewItem;
     }
 
     private void feedItemsToMsg() {
         feedItems.forEach((name, listItems) -> {
-            this.stringBuilder.append("[ " + name + " ] \n");
+            this.stringBuilder.append("== [ " + name + " ] == \n");
             listItems.forEach(item -> {
-                this.stringBuilder.append(item.getTitle() + "\n" + item.getLink() + "\n");
+                this.stringBuilder.append(item.getTitle() + "\n" + item.getLink() + "\n\n");
             });
         });
     }
