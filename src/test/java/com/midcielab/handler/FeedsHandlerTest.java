@@ -1,12 +1,12 @@
 package com.midcielab.handler;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
 
 public class FeedsHandlerTest {
     @Test
     public void testProcess() {
-        assertTrue(FeedsHandler.getInstance().process());
+        assertNotNull(FeedsHandler.getInstance().process());
     }
 }

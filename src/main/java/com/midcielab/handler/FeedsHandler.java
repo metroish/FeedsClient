@@ -62,7 +62,7 @@ public class FeedsHandler {
             } else {
                 feed.setChecksum(resp.get().body().length());
                 Optional<List<Item>> opl = ExtractUtility.getInstance().extract(resp.get().body().toString());
-                if(opl.isPresent()) {
+                if (opl.isPresent()) {
                     List<Item> tempList = opl.get();
                     tempList.removeIf(
                             obj -> (TimeUtility.getInstance().compareTime(obj.getPubDate(), feed.getHandleTime())));
@@ -70,7 +70,7 @@ public class FeedsHandler {
                     hasNewItem = true;
                 } else {
                     feed.setResult("Parsing feed fail, check feed format");
-                }                                
+                }
             }
         }
         return hasNewItem;
@@ -110,14 +110,17 @@ public class FeedsHandler {
     }
 
     private void saveState() {
-        if (this.actionResult) {
-            this.config.getFeed().forEach(feed -> {
-                if (feedItems.containsKey(feed.getName())) {
+        this.config.getFeed().forEach(feed -> {
+            if (feedItems.containsKey(feed.getName())) {
+                if (this.actionResult) {
                     feed.setHandleTime(TimeUtility.getInstance().getNow());
                     feed.setResult("OK");
+                } else {
+                    feed.setChecksum(0);
+                    feed.setResult("Fail on action perform");
                 }
-            });
-        }
+            }
+        });
         ConfigUtility.getInsance().saveConfig(this.config);
     }
 }

@@ -1,13 +1,10 @@
 package com.midcielab.utility;
 
 import static org.junit.Assert.assertNotNull;
-
 import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.Optional;
-
 import com.midcielab.model.Item;
-
 import org.junit.Test;
 
 public class ExtractUtilityTest {
