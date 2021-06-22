@@ -73,13 +73,22 @@
                 <goal>shade</goal>
               </goals>
               <configuration>
+                <minimizeJar>true</minimizeJar>
                 <shadedArtifactAttached>true</shadedArtifactAttached>
                 <createDependencyReducedPom>false</createDependencyReducedPom>                
                 <transformers>            
-                  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.midcielab.FeedsClient</mainClass>
-                </transformer>
+                  <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">                  
+                    <mainClass>com.midcielab.FeedsClient</mainClass>
+                  </transformer>
                 </transformers>
+                 <filters>
+                    <filter>
+                        <artifact>com.midcielab:feedsclient</artifact>
+                        <excludes>
+                            <exclude>*.yml</exclude>
+                        </excludes>
+                    </filter>
+                  </filters>
               </configuration>
             </execution>
           </executions>
