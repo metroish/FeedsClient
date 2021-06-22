@@ -6,6 +6,7 @@
   <groupId>com.midcielab</groupId>
   <artifactId>feedsclient</artifactId>
   <version>1.0-SNAPSHOT</version>
+  <!-- CI:1.0-SNAPSHOT -->
 
   <name>feedsclient</name>
   <url>http://midcielab.com</url>
