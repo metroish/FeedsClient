@@ -40,10 +40,10 @@ jobs:
         name: feedsclient-${{env.VERSION}}-shaded.jar
         path: target/*-shaded.jar    
     - name: Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          body_path: CHANGELOG.md
-          files: target/feedsclient-${{env.VERSION}}-shaded.jar            
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      uses: softprops/action-gh-release@v1
+      if: startsWith(github.ref, 'refs/tags/')
+      with:
+        body_path: CHANGELOG.md
+        files: target/feedsclient-${{env.VERSION}}-shaded.jar            
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
