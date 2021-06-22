@@ -33,7 +33,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Retrieve version
-      run: echo "::set-env name=VERSION::$(grep -i "ci:" pom.xml | awk '{print $2}' | cut -d : -f 2)"    
+      run: echo "::set-env name=VERSION::$(grep -i "ci:" pom.xml | awk '{print $2}' | cut -d ':' -f 2)"
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
