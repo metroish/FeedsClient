@@ -33,7 +33,7 @@ jobs:
     - name: Build with Maven
       run: mvn -B package --file pom.xml
     - name: Retrieve version
-      run: echo "VERSION=$(grep -i "ci:" pom.xml | awk '{print $2}' | cut -d ':' -f 2)" >> $GITHUB_ENV
+      run: echo "VERSION=$(grep -i '<version>' pom.xml | head -1 | sed 's/<version>//g' | sed 's/<\/version>//g' | awk '{print $1}')" >> $GITHUB_ENV
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
