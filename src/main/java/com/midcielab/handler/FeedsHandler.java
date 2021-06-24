@@ -65,9 +65,11 @@ public class FeedsHandler {
                 if (opl.isPresent()) {
                     List<Item> tempList = opl.get();
                     tempList.removeIf(
-                            obj -> (TimeUtility.getInstance().compareTime(obj.getPubDate(), feed.getHandleTime())));
-                    feedItems.put(feed.getName(), tempList);
-                    hasNewItem = true;
+                            obj -> (TimeUtility.getInstance().compareTime(feed.getHandleTime(), obj.getPubDate())));
+                    if (tempList.size() > 0) {
+                        feedItems.put(feed.getName(), tempList);
+                        hasNewItem = true;
+                    }
                 } else {
                     feed.setResult("Parsing feed fail, check feed format");
                 }
