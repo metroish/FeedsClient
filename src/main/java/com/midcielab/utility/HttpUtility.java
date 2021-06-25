@@ -2,6 +2,7 @@ package com.midcielab.utility;
 
 import java.net.URI;
 import java.net.http.HttpClient;
+import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpClient.Version;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -20,7 +21,7 @@ public class HttpUtility {
 
     private HttpUtility() {
         this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(connectTimeout)).version(HTTP2)
-                .build();
+                .followRedirects(Redirect.NORMAL).build();
     }
 
     public static HttpUtility getInstance() {
@@ -30,7 +31,7 @@ public class HttpUtility {
     public Optional<HttpResponse<String>> getUrlContent(String url) {
         try {
             this.httpRequest = HttpRequest.newBuilder(new URI(url)).GET().timeout(Duration.ofSeconds(connectTimeout))
-                    .build();
+                    .header("User-Agent", ConfigUtility.getInsance().getConfig().getAgent()).build();
             this.httpResponse = this.httpClient.send(this.httpRequest, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
             e.printStackTrace();

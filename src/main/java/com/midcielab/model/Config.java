@@ -4,9 +4,18 @@ import java.util.List;
 
 public class Config {
     private String action;
+    private String agent;
     private Smtp smtp;
     private Line line;
     private List<Feed> feed;
+
+    public String getAgent() {
+        return agent;
+    }
+
+    public void setAgent(String agent) {
+        this.agent = agent;
+    }
 
     public String getAction() {
         return action;
@@ -23,7 +32,7 @@ public class Config {
     public void setSmtp(Smtp smtp) {
         this.smtp = smtp;
     }
-    
+
     public Line getLine() {
         return line;
     }

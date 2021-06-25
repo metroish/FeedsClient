@@ -28,7 +28,7 @@ public class HttpUtilityTest {
     // }
 
     @Test
-    public void testGetUrlContent() {
+    public void testGetUrlContent() {        
         String url = ConfigUtility.getInsance().getConfig().getFeed().iterator().next().getUrl();
         Optional<HttpResponse<String>> resp = HttpUtility.getInstance().getUrlContent(url);
         resp.ifPresentOrElse(respObj -> {
