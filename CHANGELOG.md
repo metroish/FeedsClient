@@ -1,3 +1,20 @@
+**FeedsClient v1.1.1**
+
+**fix**
+
+- Duplicate items attached on different feed
+
+**add**
+
+- User-agent & follow redirection support
+- For changing user-agent, add agent parameter on config.yml
+- Simple start script
+- Log4j2 support with log4j2.properties setting
+
+**change**
+
+- Disable unnecessary Upload artifact CI workflow
+
 **FeedsClient v1.0.1**
 
 **fix**

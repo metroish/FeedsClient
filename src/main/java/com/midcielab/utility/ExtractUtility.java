@@ -5,21 +5,23 @@ import java.io.ByteArrayInputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 import com.midcielab.model.Item;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ExtractUtility {
 
     private static ExtractUtility instance = new ExtractUtility();
+    private static final Logger logger = LogManager.getLogger();
     private XMLInputFactory factory;
     private XMLEventReader eventReader;
     private XMLEvent xmlEvent;
-    private List<Item> itemLists = new ArrayList<Item>();
+    private List<Item> itemLists;
     private Item item;
 
     private ExtractUtility() {
@@ -31,6 +33,7 @@ public class ExtractUtility {
     }
 
     public Optional<List<Item>> extract(String input) {
+        itemLists = new ArrayList<Item>();
         try {
             this.eventReader = factory
                     .createXMLEventReader(new BufferedInputStream(new ByteArrayInputStream(input.getBytes("UTF-8"))));
@@ -68,7 +71,7 @@ public class ExtractUtility {
             }
             eventReader.close();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Parsing feed error", e);
         }
         return Optional.ofNullable(itemLists);
     }

@@ -8,6 +8,8 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Optional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class HttpUtility {
 
@@ -15,9 +17,9 @@ public class HttpUtility {
     private HttpClient httpClient;
     private HttpRequest httpRequest;
     private HttpResponse<String> httpResponse;
-
     private final int connectTimeout = 60;
     private final Version HTTP2 = HttpClient.Version.HTTP_2;
+    private static final Logger logger = LogManager.getLogger();
 
     private HttpUtility() {
         this.httpClient = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(connectTimeout)).version(HTTP2)
@@ -34,7 +36,7 @@ public class HttpUtility {
                     .header("User-Agent", ConfigUtility.getInsance().getConfig().getAgent()).build();
             this.httpResponse = this.httpClient.send(this.httpRequest, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Send HTTP GET request fail on ( " + url + " )", e);
         }
         return Optional.ofNullable(this.httpResponse);
     }
@@ -46,7 +48,7 @@ public class HttpUtility {
                     .timeout(Duration.ofSeconds(connectTimeout)).build();
             this.httpResponse = this.httpClient.send(this.httpRequest, HttpResponse.BodyHandlers.ofString());
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Send Line API fail", e);
         }
         return Optional.ofNullable(this.httpResponse);
     }

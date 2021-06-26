@@ -13,10 +13,13 @@ import com.midcielab.utility.ExtractUtility;
 import com.midcielab.utility.HttpUtility;
 import com.midcielab.utility.SmtpUtility;
 import com.midcielab.utility.TimeUtility;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class FeedsHandler {
 
     private static FeedsHandler instance = new FeedsHandler();
+    private static final Logger logger = LogManager.getLogger();
     private Config config;
     private HttpUtility httpUtility;
     private StringBuilder stringBuilder;
@@ -36,42 +39,51 @@ public class FeedsHandler {
     }
 
     public boolean process() {
-        if (retreiveFeedItems()) {
+        logger.info("===[ FeedsClient App Start ]===");
+        if (retrieveFeedItems()) {
             feedItemsToMsg();
             performAction();
             saveState();
-        } else {
-            return true;
         }
+        logger.info("===[ FeedsClient App End ]===");
         return this.actionResult;
     }
 
-    private boolean retreiveFeedItems() {
+    private boolean retrieveFeedItems() {
         boolean hasNewItem = false;
         for (Feed feed : this.config.getFeed()) {
+            logger.info("Retrieve Feed -> " + feed.getName());
             Optional<HttpResponse<String>> resp = this.httpUtility.getUrlContent(feed.getUrl());
             if (resp.isEmpty()) {
-                feed.setResult("Connection fail, check server status.");
+                logger.info("Connection fail");
+                feed.setResult("Connection fail");
                 continue;
             } else if (resp.get().statusCode() != 200) {
-                feed.setResult("Retreive feed fail, RC = " + resp.get().statusCode());
+                logger.info("Server reponse error");
+                logger.debug("Response headers ->" + resp.get().headers());
+                feed.setResult("Server reponse error");
                 continue;
             } else if (resp.get().body().length() == feed.getChecksum()) {
-                feed.setResult("OK, keep latest.");
+                logger.info("No new items to process");
+                feed.setResult("Up-To-Date");
                 continue;
             } else {
                 feed.setChecksum(resp.get().body().length());
                 Optional<List<Item>> opl = ExtractUtility.getInstance().extract(resp.get().body().toString());
                 if (opl.isPresent()) {
+                    logger.debug("Extract items -> " + opl.get().size());
                     List<Item> tempList = opl.get();
                     tempList.removeIf(
                             obj -> (TimeUtility.getInstance().compareTime(feed.getHandleTime(), obj.getPubDate())));
+                    logger.debug("Earlier than ( " + feed.getHandleTime() + " ) items -> " + tempList.size());
                     if (tempList.size() > 0) {
                         feedItems.put(feed.getName(), tempList);
                         hasNewItem = true;
+                        logger.info("Items to perform action -> " + tempList.size());
                     }
                 } else {
-                    feed.setResult("Parsing feed fail, check feed format");
+                    logger.info("Parsing items of feed fail");
+                    feed.setResult("Parsing items of feed fail");
                 }
             }
         }
@@ -85,10 +97,12 @@ public class FeedsHandler {
                 this.stringBuilder.append(item.getTitle() + "\n" + item.getLink() + "\n\n");
             });
         });
+        logger.debug("Final msg content: \n" + this.stringBuilder.toString() + "\n");
     }
 
     private void performAction() {
         String action = this.config.getAction();
+        logger.info("Perform action -> " + action);
         switch (action.trim()) {
             case "smtp":
                 this.actionResult = SmtpUtility.getInstance().sendMail(this.config.getSmtp(),
@@ -109,6 +123,7 @@ public class FeedsHandler {
                 });
                 break;
         }
+        logger.info("Action result -> " + this.actionResult);
     }
 
     private void saveState() {
@@ -117,12 +132,15 @@ public class FeedsHandler {
                 if (this.actionResult) {
                     feed.setHandleTime(TimeUtility.getInstance().getNow());
                     feed.setResult("OK");
+                    logger.debug("Update ( " + feed.getName() + " ) action result");
                 } else {
                     feed.setChecksum(0);
-                    feed.setResult("Fail on action perform");
+                    feed.setResult("Action fail");
+                    logger.debug("Reset ( " + feed.getName() + " ) checksum to retry");
                 }
             }
         });
         ConfigUtility.getInsance().saveConfig(this.config);
+        logger.info("Result save success");
     }
 }

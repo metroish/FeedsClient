@@ -9,10 +9,13 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import com.midcielab.model.Smtp;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SmtpUtility {
 
     private static SmtpUtility instance = new SmtpUtility();
+    private static final Logger logger = LogManager.getLogger();
 
     private SmtpUtility() {
     }
@@ -26,7 +29,7 @@ public class SmtpUtility {
         prop.put("mail.smtp.host", smtp.getServer());
         prop.put("mail.smtp.port", smtp.getPort());
         prop.put("mail.smtp.auth", "true");
-        prop.put("mail.smtp.starttls.enable", "true"); // TLS
+        prop.put("mail.smtp.starttls.enable", "true");
 
         Session session = Session.getInstance(prop, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
@@ -42,7 +45,7 @@ public class SmtpUtility {
             message.setText(msgBody);
             Transport.send(message);
         } catch (MessagingException e) {
-            e.printStackTrace();
+            logger.error("Send mail fail", e);
             return false;
         }
         return true;

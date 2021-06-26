@@ -36,11 +36,11 @@ jobs:
       run: rm target/original-*.jar
     - name: Retrieve version
       run: echo "VERSION=$(grep -i '<version>' pom.xml | head -1 | sed 's/<version>//g' | sed 's/<\/version>//g' | awk '{print $1}')" >> $GITHUB_ENV
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: feedsclient-${{env.VERSION}}.jar
-        path: target/*.jar
+    # - name: Upload artifact
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: feedsclient-${{env.VERSION}}.jar
+    #     path: target/*.jar
     - name: Retrieve changelog line
       if: startsWith(github.ref, 'refs/tags/')
       run: echo "CHANGELOGLINE=$(grep -n 'FeedsClient' CHANGELOG.md | cut -d ':' -f 1 | awk 'NR==2')" >> $GITHUB_ENV
