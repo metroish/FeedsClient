@@ -1,3 +1,9 @@
+**FeedsClient v1.1.2**
+
+**fix**
+
+- Fail to initial log4j2 due to lack mutli-release flag in manifest (Issue #2)
+
 **FeedsClient v1.1.1**
 
 **fix**
