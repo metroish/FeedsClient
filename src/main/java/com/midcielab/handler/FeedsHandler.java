@@ -52,34 +52,31 @@ public class FeedsHandler {
     private boolean retrieveFeedItems() {
         boolean hasNewItem = false;
         for (Feed feed : this.config.getFeed()) {
-            logger.info("Retrieve Feed -> " + feed.getName());
+            logger.info("Retrieve Feed -> {}", feed.getName());
             Optional<HttpResponse<String>> resp = this.httpUtility.getUrlContent(feed.getUrl());
             if (resp.isEmpty()) {
                 logger.info("Connection fail");
                 feed.setResult("Connection fail");
-                continue;
             } else if (resp.get().statusCode() != 200) {
                 logger.info("Server reponse error");
-                logger.debug("Response headers ->" + resp.get().headers());
+                logger.debug("Response headers -> {}", resp.get().headers());
                 feed.setResult("Server reponse error");
-                continue;
             } else if (resp.get().body().length() == feed.getChecksum()) {
                 logger.info("No new items to process");
                 feed.setResult("Up-To-Date");
-                continue;
             } else {
                 feed.setChecksum(resp.get().body().length());
-                Optional<List<Item>> opl = ExtractUtility.getInstance().extract(resp.get().body().toString());
+                Optional<List<Item>> opl = ExtractUtility.getInstance().extract(resp.get().body());
                 if (opl.isPresent()) {
-                    logger.debug("Extract items -> " + opl.get().size());
+                    logger.debug("Extract items -> {} ", opl.get().size());
                     List<Item> tempList = opl.get();
                     tempList.removeIf(
                             obj -> (TimeUtility.getInstance().compareTime(feed.getHandleTime(), obj.getPubDate())));
-                    logger.debug("Earlier than ( " + feed.getHandleTime() + " ) items -> " + tempList.size());
-                    if (tempList.size() > 0) {
+                    logger.debug("Earlier than ( {} ) items -> {}", feed.getHandleTime(), tempList.size());
+                    if (!tempList.isEmpty()) {
                         feedItems.put(feed.getName(), tempList);
                         hasNewItem = true;
-                        logger.info("Items to perform action -> " + tempList.size());
+                        logger.info("Items to perform action -> {}", tempList.size());
                     }
                 } else {
                     logger.info("Parsing items of feed fail");
@@ -93,16 +90,14 @@ public class FeedsHandler {
     private void feedItemsToMsg() {
         feedItems.forEach((name, listItems) -> {
             this.stringBuilder.append("== [ " + name + " ] == \n");
-            listItems.forEach(item -> {
-                this.stringBuilder.append(item.getTitle() + "\n" + item.getLink() + "\n\n");
-            });
+            listItems.forEach(item -> this.stringBuilder.append(item.getTitle() + "\n" + item.getLink() + "\n\n"));
         });
-        logger.debug("Final msg content: \n" + this.stringBuilder.toString() + "\n");
+        logger.debug("Final msg content: \n {} \n", this.stringBuilder);
     }
 
     private void performAction() {
         String action = this.config.getAction();
-        logger.info("Perform action -> " + action);
+        logger.info("Perform action -> {}", action);
         switch (action.trim()) {
             case "smtp":
                 this.actionResult = SmtpUtility.getInstance().sendMail(this.config.getSmtp(),
@@ -118,12 +113,12 @@ public class FeedsHandler {
                     } else {
                         this.actionResult = false;
                     }
-                }, () -> {
-                    this.actionResult = false;
-                });
+                }, () -> this.actionResult = false);
                 break;
+            default:
+                logger.info("No match action to perform");
         }
-        logger.info("Action result -> " + this.actionResult);
+        logger.info("Action result -> {}", this.actionResult);
     }
 
     private void saveState() {
@@ -132,11 +127,11 @@ public class FeedsHandler {
                 if (this.actionResult) {
                     feed.setHandleTime(TimeUtility.getInstance().getNow());
                     feed.setResult("OK");
-                    logger.debug("Update ( " + feed.getName() + " ) action result");
+                    logger.debug("Update ( {} ) action result", feed.getName());
                 } else {
                     feed.setChecksum(0);
                     feed.setResult("Action fail");
-                    logger.debug("Reset ( " + feed.getName() + " ) checksum to retry");
+                    logger.debug("Reset ( {} ) checksum to retry", feed.getName());
                 }
             }
         });

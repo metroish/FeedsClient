@@ -25,13 +25,14 @@ public class SmtpUtility {
     }
 
     public boolean sendMail(Smtp smtp, String msgBody) {
-        Properties prop = new Properties();
+        var prop = new Properties();
         prop.put("mail.smtp.host", smtp.getServer());
         prop.put("mail.smtp.port", smtp.getPort());
         prop.put("mail.smtp.auth", "true");
         prop.put("mail.smtp.starttls.enable", "true");
 
-        Session session = Session.getInstance(prop, new javax.mail.Authenticator() {
+        var session = Session.getInstance(prop, new javax.mail.Authenticator() {
+            @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(smtp.getUser(), smtp.getPasswd());
             }

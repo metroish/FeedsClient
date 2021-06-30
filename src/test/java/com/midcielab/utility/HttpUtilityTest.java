@@ -23,12 +23,13 @@ public class HttpUtilityTest {
 
     // @Parameters(name = "{index}: with({0},{1},{2})")
     // public static Collection<Object[]> data() {
-    //     return Arrays.asList(
-    //             new Object[][] { { "https://kaif.io/hot.rss", "GET", "" }, { "https://www.ithome.com.tw/rss", "GET", "" } });
+    // return Arrays.asList(
+    // new Object[][] { { "https://kaif.io/hot.rss", "GET", "" }, {
+    // "https://www.ithome.com.tw/rss", "GET", "" } });
     // }
 
     @Test
-    public void testGetUrlContent() {        
+    public void testGetUrlContent() {
         String url = ConfigUtility.getInsance().getConfig().getFeed().iterator().next().getUrl();
         Optional<HttpResponse<String>> resp = HttpUtility.getInstance().getUrlContent(url);
         resp.ifPresentOrElse(respObj -> {

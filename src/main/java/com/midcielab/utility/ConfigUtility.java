@@ -29,12 +29,12 @@ public class ConfigUtility {
     }
 
     public void saveConfig(Config config) {
-        DumperOptions options = new DumperOptions();
+        var options = new DumperOptions();
         options.setDefaultFlowStyle(FlowStyle.BLOCK);
         options.setPrettyFlow(true);
-        Yaml yml = new Yaml(options);
+        yml = new Yaml(options);
         try {
-            File file = new File(this.getClass().getClassLoader().getResource("config.yml").toURI().getPath());
+            var file = new File(this.getClass().getClassLoader().getResource("config.yml").toURI().getPath());
             yml.dump(config, new FileWriter(file.getAbsolutePath()));
         } catch (Exception e) {
             logger.error("Dump result to config.yml fail", e);

@@ -18,12 +18,12 @@ public class TimeUtility {
     }
 
     public String getNow() {
-        return LocalDateTime.now().format(dtfNow).toString();
+        return LocalDateTime.now().format(dtfNow);
     }
 
     public boolean compareTime(String time1, String time2) {
-        LocalDateTime ldt1 = LocalDateTime.parse(time1, dtfComp);
-        LocalDateTime ldt2 = LocalDateTime.parse(time2, dtfComp);
+        var ldt1 = LocalDateTime.parse(time1, dtfComp);
+        var ldt2 = LocalDateTime.parse(time2, dtfComp);
         return ldt1.isAfter(ldt2);
     }
 }

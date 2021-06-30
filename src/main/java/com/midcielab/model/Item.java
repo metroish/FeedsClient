@@ -5,7 +5,7 @@ public class Item {
     private String description;
     private String link;
     private String pubDate;
-    
+
     public String getTitle() {
         return title;
     }
@@ -44,5 +44,4 @@ public class Item {
                 + "]";
     }
 
-    
 }
